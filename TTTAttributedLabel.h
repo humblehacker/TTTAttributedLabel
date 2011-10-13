@@ -45,7 +45,7 @@ typedef enum {
     CTFramesetterRef _framesetter;
     BOOL _needsFramesetter;
     
-    id _delegate;
+    id __unsafe_unretained _delegate;
     UIDataDetectorTypes _dataDetectorTypes;
     NSArray *_links;
     NSDictionary *_linkAttributes;
@@ -62,7 +62,7 @@ typedef enum {
  
  @discussion A `TTTAttributedLabel` delegate responds to messages sent by tapping on links in the label. You can use the delegate to respond to links referencing a URL, address, phone number, date, or date with a specified time zone and duration.
  */
-@property (nonatomic, assign) id <TTTAttributedLabelDelegate> delegate;
+@property (nonatomic, unsafe_unretained) id <TTTAttributedLabelDelegate> delegate;
 
 ///------------------------------------
 /// @name Detecting and Accessing Links
@@ -80,7 +80,7 @@ typedef enum {
 /**
  An array of `NSTextCheckingResult` objects for links detected or manually added to the label text.
  */
-@property (readonly, nonatomic, retain) NSArray *links;
+@property (readonly, nonatomic, strong) NSArray *links;
 
 ///---------------------------------------
 /// @name Acccessing Text Style Attributes
@@ -93,7 +93,7 @@ typedef enum {
  
  @warning You must specify `linkAttributes` before setting autodecting or manually-adding links for these attributes to be applied.
  */
-@property (nonatomic, retain) NSDictionary *linkAttributes;
+@property (nonatomic, strong) NSDictionary *linkAttributes;
 
 /**
  The vertical text alignment for the label, for when the frame size is greater than the text rect size.
