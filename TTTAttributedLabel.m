@@ -67,8 +67,8 @@ static inline NSTextCheckingType NSTextCheckingTypeFromUIDataDetectorType(UIData
 static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *label) {
     NSMutableDictionary *mutableAttributes = [NSMutableDictionary dictionary]; 
     
-    CTFontRef font = CTFontCreateWithName((CFStringRef)label.font.fontName, label.font.pointSize, NULL);
-    [mutableAttributes setObject:(id)font forKey:(NSString *)kCTFontAttributeName];
+    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)label.font.fontName, label.font.pointSize, NULL);
+    [mutableAttributes setObject:(__bridge id)font forKey:(NSString *)kCTFontAttributeName];
     CFRelease(font);
     
     [mutableAttributes setObject:(id)[label.textColor CGColor] forKey:(NSString*)kCTForegroundColorAttributeName];
@@ -80,7 +80,7 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
 		{.spec = kCTParagraphStyleSpecifierLineBreakMode, .valueSize = sizeof(CTLineBreakMode), .value = (const void*)&lineBreakMode},
 	};
 	CTParagraphStyleRef paragraphStyle = CTParagraphStyleCreate(paragraphStyles, 2);
-	[mutableAttributes setObject:(id)paragraphStyle forKey:(NSString*)kCTParagraphStyleAttributeName];
+	[mutableAttributes setObject:(__bridge id)paragraphStyle forKey:(NSString*)kCTParagraphStyleAttributeName];
 	CFRelease(paragraphStyle);
     
     return [NSDictionary dictionaryWithDictionary:mutableAttributes];
@@ -150,10 +150,6 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
     if (_shadowFramesetter) CFRelease(_shadowFramesetter);
     if (_highlightFramesetter) CFRelease(_highlightFramesetter);
     
-    [_attributedText release];
-    [_links release];
-    [_linkAttributes release];
-    [super dealloc];
 }
 
 #pragma mark -
@@ -164,7 +160,6 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
     }
     
     [self willChangeValueForKey:@"attributedText"];
-    [_attributedText release];
     _attributedText = [text copy];
     [self didChangeValueForKey:@"attributedText"];
     
@@ -182,7 +177,7 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
             if (_shadowFramesetter) CFRelease(_shadowFramesetter);
             if (_highlightFramesetter) CFRelease(_highlightFramesetter);
             
-            self.framesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)self.attributedText);
+            self.framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)self.attributedText);
             self.shadowFramesetter = nil;
             self.highlightFramesetter = nil;
             _needsFramesetter = NO;
@@ -223,7 +218,7 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
     self.links = [self.links arrayByAddingObject:result];
     
     if (self.linkAttributes) {
-        NSMutableAttributedString *mutableAttributedString = [[[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText] autorelease];
+        NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText];
         [mutableAttributedString addAttributes:self.linkAttributes range:result.range];
         self.attributedText = mutableAttributedString;        
     }
@@ -341,10 +336,10 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
 
 - (void)setText:(id)text afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString *(^)(NSMutableAttributedString *mutableAttributedString))block {
     if ([text isKindOfClass:[NSString class]]) {
-        self.attributedText = [[[NSAttributedString alloc] initWithString:text] autorelease];
+        self.attributedText = [[NSAttributedString alloc] initWithString:text];
     }
     
-    NSMutableAttributedString *mutableAttributedString = [[[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText] autorelease];
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedText];
     [mutableAttributedString addAttributes:NSAttributedStringAttributesFromLabel(self) range:NSMakeRange(0, [mutableAttributedString length])];
     
     if (block) {
@@ -406,9 +401,9 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
         
         // Override the text's color attribute to whatever the shadow color is
         if (!self.shadowFramesetter) {
-            NSMutableAttributedString *shadowAttrString = [[self.attributedText mutableCopy] autorelease];
+            NSMutableAttributedString *shadowAttrString = [self.attributedText mutableCopy];
             [shadowAttrString addAttribute:(NSString*)kCTForegroundColorAttributeName value:(id)[self.shadowColor CGColor] range:NSMakeRange(0, [self.attributedText length])];
-            self.shadowFramesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)shadowAttrString);
+            self.shadowFramesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)shadowAttrString);
         }
                 
         [self drawFramesetter:self.shadowFramesetter textRange:textRange inRect:shadowRect context:c];
@@ -417,9 +412,9 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
     // Finally, draw the text or highlighted text itself (on top of the shadow, if there is one)
     if (self.highlightedTextColor && self.highlighted) {
         if (!self.highlightFramesetter) {
-            NSMutableAttributedString *mutableAttributedString = [[self.attributedText mutableCopy] autorelease];
+            NSMutableAttributedString *mutableAttributedString = [self.attributedText mutableCopy];
             [mutableAttributedString addAttribute:(NSString *)kCTForegroundColorAttributeName value:(id)[self.highlightedTextColor CGColor] range:NSMakeRange(0, mutableAttributedString.length)];
-            self.highlightFramesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)mutableAttributedString);
+            self.highlightFramesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)mutableAttributedString);
         }
         
         [self drawFramesetter:self.highlightFramesetter textRange:textRange inRect:textRect context:c];
