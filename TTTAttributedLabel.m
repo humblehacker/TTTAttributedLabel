@@ -91,7 +91,7 @@ static inline NSDictionary * NSAttributedStringAttributesFromLabel(UILabel *labe
 @property (readwrite, nonatomic, assign) CTFramesetterRef framesetter;
 @property (readwrite, nonatomic, assign) CTFramesetterRef shadowFramesetter;
 @property (readwrite, nonatomic, assign) CTFramesetterRef highlightFramesetter;
-@property (readwrite, nonatomic, retain) NSArray *links;
+@property (readwrite, nonatomic, strong) NSArray *links;
 
 - (id)initCommon;
 - (void)setNeedsFramesetter;
